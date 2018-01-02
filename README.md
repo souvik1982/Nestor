@@ -17,7 +17,7 @@ with various moving averages to guide my trades and investments. Various technic
 in proprietary strategies algorithms to guide my trading intuition. </p>
 
 <p> A variation of the <a href="https://en.wikipedia.org/wiki/Fluctuation-dissipation_theorem"><b>Fluctuation Dissipation Theorem</b></a>
-formulated for the detailed balance of a stock is used to gauge its susceptibility market forces and sentiments. </p>
+formulated for the detailed balance of a stock is used to gauge its susceptibility to market forces and sentiments. </p>
 
 <p> While most of the action happens in the terminal, Nestor also generates an HTML dashboard with the stocks, funds and currencies 
 I'm interested in as shown in the screenshot below. </p>
