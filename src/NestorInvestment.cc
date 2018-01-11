@@ -50,7 +50,7 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
         system(systemCommand.c_str());
     
         std::string outputFilename=directory_+"/"+name_+"_Nestor.csv";
-        CSVWriterInterface csvOutputFile(outputFilename);
+        CSVWriterInterface csvOutputFile(outputFilename, std::ofstream::out);
         csvOutputFile.writeRow(&v_headerRow);
         for (int i=v_v_row.size()-1; i>=0; --i) 
         {
@@ -99,7 +99,7 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
         v_v_appendRows.push_back(v_row);
       }
       
-      CSVWriterInterface csvPersistentFileOutput(persistentFilename);
+      CSVWriterInterface csvPersistentFileOutput(persistentFilename, std::ofstream::app);
       for (int i=v_v_appendRows.size()-1; i>=0; --i)
       {
         v_v_timeOrderedRows.push_back(v_v_appendRows.at(i));

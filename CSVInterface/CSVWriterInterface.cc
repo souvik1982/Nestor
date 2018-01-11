@@ -1,11 +1,10 @@
 #include "CSVWriterInterface.h"
 
-#include <fstream>
 #include <sstream>
 
-CSVWriterInterface::CSVWriterInterface(std::string filename, std::string delimiter)
+CSVWriterInterface::CSVWriterInterface(std::string filename, std::ios::openmode mode, std::string delimiter)
 {
-  outFile_=new std::ofstream(filename.c_str(), std::ofstream::out | std::ofstream::app);
+  outFile_=new std::ofstream(filename.c_str(), mode);
   delimiter_=delimiter;
 }
 
