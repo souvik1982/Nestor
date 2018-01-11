@@ -19,6 +19,8 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
   vector<string> v_headerRow;
   vector<vector<string>> v_v_timeOrderedRows;
   
+  bool bool_download=true;
+  
   // Download last 20 years of daily data
   // Order it by increasing time
   if (getData=="fulldownload") // Get full daily data 
@@ -33,24 +35,37 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
     CSVReaderInterface csvFile(inputFilename);
     vector<vector<string>> v_v_row;
     vector<string> v_row;
-    if (!csvFile.readRow(&v_headerRow)) std::cout<<"ERROR: CSV file "<<inputFilename<<" does not exist."<<std::endl;
-    while (csvFile.readRow(&v_row)) v_v_row.push_back(v_row);
-    
-    std::cout<<"LOG: Deleting temporary file "<<inputFilename<<std::endl;
-    systemCommand="rm "+inputFilename;
-    system(systemCommand.c_str());
-    
-    std::cout<<"LOG: Creating directory called "<<directory_<<" if it doesn't exist."<<std::endl;
-    systemCommand="mkdir -p "+directory_;
-    system(systemCommand.c_str());
-    
-    std::string outputFilename=directory_+"/"+name_+"_Nestor.csv";
-    CSVWriterInterface csvOutputFile(outputFilename);
-    csvOutputFile.writeRow(&v_headerRow);
-    for (int i=v_v_row.size()-1; i>=0; --i) 
+    if (csvFile.readRow(&v_headerRow)) 
     {
-      v_v_timeOrderedRows.push_back(v_v_row.at(i));
-      csvOutputFile.writeRow(&(v_v_row.at(i)));
+      if (v_headerRow.at(0)=="timestamp")
+      {
+        while (csvFile.readRow(&v_row)) v_v_row.push_back(v_row);
+        
+        std::cout<<"LOG: Deleting temporary file "<<inputFilename<<std::endl;
+        systemCommand="rm "+inputFilename;
+        system(systemCommand.c_str());
+    
+        std::cout<<"LOG: Creating directory called "<<directory_<<" if it doesn't exist."<<std::endl;
+        systemCommand="mkdir -p "+directory_;
+        system(systemCommand.c_str());
+    
+        std::string outputFilename=directory_+"/"+name_+"_Nestor.csv";
+        CSVWriterInterface csvOutputFile(outputFilename);
+        csvOutputFile.writeRow(&v_headerRow);
+        for (int i=v_v_row.size()-1; i>=0; --i) 
+        {
+          v_v_timeOrderedRows.push_back(v_v_row.at(i));
+          csvOutputFile.writeRow(&(v_v_row.at(i)));
+        }
+      }
+      else
+      {
+        std::cout<<"ERROR: CSV file "<<inputFilename<<" is corrupted. Incorrect download."<<std::endl;
+      }
+    }
+    else
+    {
+      std::cout<<"ERROR: CSV file "<<inputFilename<<" could not be opened for reading."<<std::endl;
     }
   }
   
@@ -94,10 +109,7 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
     else
     {
       std::cout<<"WARNING: Long term trading data has not been downloaded for "<<name_<<" stock. Please use the 'fulldownload' option first."<<std::endl;
-    
-    
     }
-    
   }
   
   else
