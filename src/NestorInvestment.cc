@@ -19,7 +19,7 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
   vector<string> v_headerRow;
   vector<vector<string>> v_v_timeOrderedRows;
   
-  bool bool_download=true;
+  bool b_download=false;
   
   // Download last 20 years of daily data
   // Order it by increasing time
@@ -57,6 +57,8 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
           v_v_timeOrderedRows.push_back(v_v_row.at(i));
           csvOutputFile.writeRow(&(v_v_row.at(i)));
         }
+        
+        b_download=true;
       }
       else
       {
@@ -105,6 +107,7 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
         v_v_timeOrderedRows.push_back(v_v_appendRows.at(i));
         csvPersistentFileOutput.writeRow(&(v_v_appendRows.at(i)));
       }
+      b_download=true;
     }
     else
     {
@@ -118,18 +121,21 @@ NestorInvestment::NestorInvestment(std::string getData, string stockname, string
   }
   
   // Load member data
-  for (int i=v_v_timeOrderedRows.size()-1; i>=0; --i)
+  if (b_download)
   {
-    string sqlDate=v_v_timeOrderedRows.at(i).at(0)+" 00:00:00";
-    TDatime t_date(sqlDate.c_str());
-    v_dates_->push_back(t_date.Convert());
-    float price_open=atof(v_v_timeOrderedRows.at(i).at(1).c_str());
-    v_price_open_->push_back(price_open);
-    v_price_hi_->push_back(atof(v_v_timeOrderedRows.at(i).at(2).c_str()));
-    v_price_lo_->push_back(atof(v_v_timeOrderedRows.at(i).at(3).c_str()));
-    float price_close=atof(v_v_timeOrderedRows.at(i).at(4).c_str());
-    v_price_close_->push_back(price_close);
-    v_price_avg_->push_back((price_open+price_close)/2.);
+    for (int i=v_v_timeOrderedRows.size()-1; i>=0; --i)
+    {
+      string sqlDate=v_v_timeOrderedRows.at(i).at(0)+" 00:00:00";
+      TDatime t_date(sqlDate.c_str());
+      v_dates_->push_back(t_date.Convert());
+      float price_open=atof(v_v_timeOrderedRows.at(i).at(1).c_str());
+      v_price_open_->push_back(price_open);
+      v_price_hi_->push_back(atof(v_v_timeOrderedRows.at(i).at(2).c_str()));
+      v_price_lo_->push_back(atof(v_v_timeOrderedRows.at(i).at(3).c_str()));
+      float price_close=atof(v_v_timeOrderedRows.at(i).at(4).c_str());
+      v_price_close_->push_back(price_close);
+      v_price_avg_->push_back((price_open+price_close)/2.);
+    }
   }
 }
 
@@ -208,9 +214,9 @@ void NestorInvestment::candleStickGraph()
                                                   &(v_priceErr_lo->at(0)), 
                                                   &(v_priceErr_hi->at(0)));
   g_hiLo->SetName(("g_"+name_).c_str());
-  g_hiLo->SetTitle((name_+"; time (mm/dd); value ($)").c_str());
+  g_hiLo->SetTitle((name_+"; time (mm/dd/yy); value ($)").c_str());
   g_hiLo->GetXaxis()->SetTimeDisplay(1);
-  g_hiLo->GetXaxis()->SetTimeFormat("%m/%d");
+  g_hiLo->GetXaxis()->SetTimeFormat("%m/%d/%y%F2000-02-28");
   g_hiLo->SetLineWidth(1);
   
   TGraphAsymmErrors *g_openClose=new TGraphAsymmErrors(180, 
@@ -277,9 +283,9 @@ void NestorInvestment::plotRatioToINX(NestorInvestment *inx)
   g_inx->SetMaximum(std::max(g_inx->GetHistogram()->GetMaximum(), g_fund->GetHistogram()->GetMaximum()));
   g_inx->SetMinimum(std::min(g_inx->GetHistogram()->GetMinimum(), g_fund->GetHistogram()->GetMinimum()));
   g_inx->SetName("g_inx");
-  g_inx->SetTitle((name_+" / "+name_+"(0), INX / INX(0); time (mm/dd); value / value today").c_str());
+  g_inx->SetTitle((name_+" / "+name_+"(0), INX / INX(0); time (mm/dd/yy); value / value today").c_str());
   g_inx->GetXaxis()->SetTimeDisplay(1);
-  g_inx->GetXaxis()->SetTimeFormat("%m/%d");
+  g_inx->GetXaxis()->SetTimeFormat("%m/%d/%y%F2000-02-28");
   g_inx->Draw("ALP");
   g_fund->Draw("LP");
   leg_->Draw();
